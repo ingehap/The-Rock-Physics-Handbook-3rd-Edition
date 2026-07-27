@@ -49,7 +49,7 @@ consistent). Each docstring states its expectations.
 | 2 | `fluids`, `fluid_properties` | done |
 | 3 | `effective_medium`, `cracks` | done |
 | 4 | `granular`, `permeability` | done |
-| 5 | `avo` | planned |
+| 5 | `avo` | done |
 | 6 | `seismic`, `signal` | planned |
 | 7 | `stats`, `io`, `plotting` | planned |
 
@@ -119,6 +119,11 @@ consistent). Each docstring states its expectations.
 | `PandaLake.m` | `rphtools.panda_lake_perm` |
 | `PandaLakeKCE.m` | `rphtools.panda_lake_kc_perm` |
 | `PermMenu.m` | `rphtools.PERM_MODELS` (registry dict, no GUI) |
+| `avopp.m` | `rphtools.avo_pp` |
+| `avops.m` | `rphtools.avo_ps` |
+| `avo_abe.m` | `rphtools.avo_attributes` |
+| `eimp.m` | `rphtools.elastic_impedance` (`angle="reflection"`) |
+| `eimp2.m` | `rphtools.elastic_impedance` (`angle="incidence"`) |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in

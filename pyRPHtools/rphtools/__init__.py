@@ -5,7 +5,7 @@ Handbook* (Mavko, Mukerji & Dvorkin, Cambridge University Press). See
 ``PORTING_PLAN.md`` at the repository root for scope, conventions, and the
 full MATLAB-to-Python mapping.
 
-Modules ported so far (Phases 1-4):
+Modules ported so far (Phases 1-5):
 
 - `rphtools.moduli` — isotropic moduli/velocity conversions, critical porosity
 - `rphtools.tensors` — 6x6 Voigt utilities, Thomsen parameters, Bond rotation
@@ -15,10 +15,19 @@ Modules ported so far (Phases 1-4):
 - `rphtools.fluid_properties` — Batzle-Wang relations, CO2 property tables
 - `rphtools.effective_medium` — Berryman self-consistent, DEM
 - `rphtools.cracks` — Hudson crack models, Eshelby-Cheng
+- `rphtools.avo` — Zoeppritz reflectivity, AVO attributes, elastic impedance
 - `rphtools.granular` — Hertz-Mindlin, contact cement, stress-induced anisotropy
 - `rphtools.permeability` — empirical and theoretical permeability models
 """
 
+from .avo import (
+    AVOAttributes,
+    ElasticImpedance,
+    avo_attributes,
+    avo_pp,
+    avo_ps,
+    elastic_impedance,
+)
 from .bounds import (
     ElasticBounds,
     HSBoundCurves,
@@ -132,6 +141,7 @@ from .tensors import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "AVOAttributes",
     "BackusLogResult",
     "BackusResult",
     "BernabePerm",
@@ -144,6 +154,7 @@ __all__ = [
     "CriticalPorosity",
     "DEMResult",
     "ElasticBounds",
+    "ElasticImpedance",
     "EshelbyCheng",
     "FluidProperties",
     "HSBoundCurves",
@@ -161,6 +172,9 @@ __all__ = [
     "TIVelocities",
     "ThomsenParams",
     "WhitePatchyResult",
+    "avo_attributes",
+    "avo_pp",
+    "avo_ps",
     "backus_average",
     "backus_average_c",
     "backus_average_log",
@@ -190,6 +204,7 @@ __all__ = [
     "cti_to_velocities",
     "dem",
     "dem_at_fraction",
+    "elastic_impedance",
     "eshelby_cheng",
     "fredrich_perm",
     "gassmann_k",

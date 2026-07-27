@@ -471,6 +471,12 @@ imports matplotlib lazily so the core package never requires it.
     fraction; the port returns a fraction throughout.
     (e) `Cem.m` hard-codes `3.14` for pi in the two cement Lambda
     parameters; the port uses `pi` per the Handbook definition (<0.1%).
+10b. Phase 5: `avo_pp(..., "shuey")` substitutes the identity
+    `Bx * Ro == 0.5 dVp/Vp` into Shuey's gradient. The MATLAB form computed
+    `Bx = (dVp/Vp)/((dVp/Vp)+(drho/rho))` explicitly, which is 0/0 for two
+    identical layers and returned NaN; the substitution is algebraically
+    identical wherever the original was defined (verified to 3e-12 over
+    2000 random interfaces) and finite at zero contrast.
 10. `hudson_cone` follows the MATLAB matrix assembly (`c12` slot filled with
     `c11 - 2*c66`); the `c12cor` formula printed in `hudsoncone.m` is
     computed there but never used, and disagrees with `c11 - 2*c66` at
