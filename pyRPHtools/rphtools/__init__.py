@@ -5,7 +5,7 @@ Handbook* (Mavko, Mukerji & Dvorkin, Cambridge University Press). See
 ``PORTING_PLAN.md`` at the repository root for scope, conventions, and the
 full MATLAB-to-Python mapping.
 
-Modules ported so far (Phases 1-5):
+Modules ported so far (Phases 1-6):
 
 - `rphtools.moduli` — isotropic moduli/velocity conversions, critical porosity
 - `rphtools.tensors` — 6x6 Voigt utilities, Thomsen parameters, Bond rotation
@@ -18,6 +18,8 @@ Modules ported so far (Phases 1-5):
 - `rphtools.avo` — Zoeppritz reflectivity, AVO attributes, elastic impedance
 - `rphtools.granular` — Hertz-Mindlin, contact cement, stress-induced anisotropy
 - `rphtools.permeability` — empirical and theoretical permeability models
+- `rphtools.seismic` — Kennett and propagator-matrix synthetics, dispersion
+- `rphtools.signal` — spectra, instantaneous attributes, block averaging
 """
 
 from .avo import (
@@ -122,6 +124,26 @@ from .permeability import (
     panda_lake_kc_perm,
     panda_lake_perm,
 )
+from .seismic import (
+    KennettFrazerTraveltimes,
+    KennettResult,
+    PropagatorResult,
+    SeismicSection,
+    kennett,
+    kennett_frazer_dispersion,
+    kennett_frazer_traveltimes,
+    propagator_seis,
+    quick_seismic_section,
+    ricker,
+)
+from .signal import (
+    InstantaneousAttributes,
+    Spectrum,
+    block_average,
+    fft_axis,
+    instantaneous_attributes,
+    spectrum,
+)
 from .tensors import (
     CTIVelocities,
     IsotropicCS,
@@ -163,11 +185,17 @@ __all__ = [
     "HertzMindlinVelocity",
     "Hudson3Result",
     "HudsonVelocities",
+    "InstantaneousAttributes",
     "IsotropicCS",
     "JohnsonMakse",
     "JohnsonResult",
+    "KennettFrazerTraveltimes",
+    "KennettResult",
     "OwolabiPerm",
     "PERM_MODELS",
+    "PropagatorResult",
+    "SeismicSection",
+    "Spectrum",
     "TICompliance5",
     "TIVelocities",
     "ThomsenParams",
@@ -187,6 +215,7 @@ __all__ = [
     "biot_hf",
     "biot_hf_geertsma_smit",
     "bloch_perm",
+    "block_average",
     "bond_matrix",
     "bond_rotation",
     "bounds",
@@ -206,6 +235,7 @@ __all__ = [
     "dem_at_fraction",
     "elastic_impedance",
     "eshelby_cheng",
+    "fft_axis",
     "fredrich_perm",
     "gassmann_k",
     "gassmann_vel",
@@ -218,9 +248,13 @@ __all__ = [
     "hudson_cone",
     "hudson_fisher",
     "hudson_velocities",
+    "instantaneous_attributes",
     "isotropic_cs",
     "johnson_makse",
     "johnson_stress_anisotropy",
+    "kennett",
+    "kennett_frazer_dispersion",
+    "kennett_frazer_traveltimes",
     "kozeny_carman_perm",
     "lame_to_velocity",
     "modified_kozeny_carman_perm",
@@ -228,6 +262,10 @@ __all__ = [
     "owolabi_perm",
     "panda_lake_kc_perm",
     "panda_lake_perm",
+    "propagator_seis",
+    "quick_seismic_section",
+    "ricker",
+    "spectrum",
     "squirt_ti",
     "thomsen_params",
     "ti_c_to_s",

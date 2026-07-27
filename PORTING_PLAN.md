@@ -477,6 +477,24 @@ imports matplotlib lazily so the core package never requires it.
     identical layers and returned NaN; the substitution is algebraically
     identical wherever the original was defined (verified to 3e-12 over
     2000 random interfaces) and finite at zero contrast.
+10c. Phase 6 findings in the seismic and signal files:
+    (a) `quick_seismic_section` fixes a latent crash in `ezseis.m`, which
+    used the filter cutoff `fc` without defining it whenever no decimation
+    was needed (`R <= 1`).
+    (b) The Fresnel-zone smoothing uses an explicit centre-slice
+    convolution, because `np.convolve(..., mode='same')` returns
+    `max(len(row), len(kernel))` — it would silently widen the section
+    whenever the Fresnel box is wider than the number of traces, where
+    MATLAB's `conv2(..., 'same')` keeps the input width.
+    (c) The `hanning` endpoint trap flagged in section 7.3 is handled by
+    `_matlab_hanning`, with a dedicated parametrized test asserting the
+    MATLAB definition and asserting it differs from `np.hanning`.
+    (d) `kennett_frazer_dispersion` reproduces `kenfdisp.m` bit for bit,
+    including its edge behavior: the curve returns toward the ray-theory
+    velocity once the whole stack is a small fraction of a wavelength
+    (no accumulated scattering left to measure), and the recursion
+    accumulates `log` on its principal branch. Both are documented rather
+    than "fixed".
 10. `hudson_cone` follows the MATLAB matrix assembly (`c12` slot filled with
     `c11 - 2*c66`); the `c12cor` formula printed in `hudsoncone.m` is
     computed there but never used, and disagrees with `c11 - 2*c66` at

@@ -160,6 +160,31 @@ g.eimp = [ippn, ipsn, ispn, ipp, ips, isp];
 [ippn, ipsn, ispn, ipp, ips, isp] = eimp2(vpl, vsl, rol, 20, mean(vsl./vpl));
 g.eimp2 = [ippn, ipsn, ispn, ipp, ips, isp];
 
+% --- seismic & signal (Phase 6) ----------------------------------------
+% NOTE: sourcewvlt.m is missing, so an explicit wavelet must be supplied.
+tw = (-0.066:0.001:0.066); wv = (1-2*(pi*30*tw).^2).*exp(-(pi*30*tw).^2);
+lyr2 = [2000 2000 80; 2600 2300 90];
+lyr3 = [2000 2000 40; 3200 2500 15; 2400 2150 60];
+[wz, pz, tf] = kennet(lyr2, wv, 0.001, 2, 0, -1);
+g.kennet_wz = wz(:); g.kennet_pz = pz(:); g.kennet_tf = tf;
+[wz, pz] = kennet(lyr3, wv, 0.001, 0, 0, -1);
+g.kennet_prim_wz = wz(:); g.kennet_prim_pz = pz(:);
+[pz, wz] = pgator(lyr2, wv, 0.001, 0);
+g.pgator_pz = pz(:); g.pgator_wz = wz(:);
+per = repmat([2000 2000 5; 3000 2400 5], 200, 1);
+[fd, vd] = kenfdisp(per, logspace(-1, 4, 15));
+g.kenfdisp = [fd(:), vd(:)];
+[tt, rt, emtt] = kenfrtt(lyr3, 30);
+g.kenfrtt = [tt(:), rt(:), emtt(:)];
+% NOTE: ezseis.m always opens an inputdlg and errors on the R<=1 branch
+% (undefined fc), so it produces no golden values.
+rng_data = [1 2 3 4 5 4 3 2 1 0 -1 -2]';
+g.blockav = blockav(rng_data, 4);
+[amp, ph, ds] = fftplot(rng_data', 0.004);
+g.fftplot = [ds(:), amp(:), ph(:)];
+[ia, ip, ifr] = iatrib(rng_data);
+g.iatrib_amp = ia(:); g.iatrib_phi = ip(:); g.iatrib_freq = ifr(:);
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
