@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rphtools"
+version = "0.1.0"
+description = "Python port of the Rock Physics Handbook MATLAB toolbox (RPHtools)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "The Rock Physics Handbook port contributors" }]
+keywords = ["rock physics", "geophysics", "seismic", "petrophysics"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.6"]
+dev = ["pytest>=7", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+include = ["rphtools*"]
+
+[tool.setuptools.package-data]
+rphtools = ["data/*.npz"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "NPY", "UP"]
