@@ -114,6 +114,34 @@ g.hudsonF_raw = C; g.hudsonF_raw_den = den;
 g.hudsoncone = C;  % port takes the angle in degrees: 30
 g.echeng = echeng([66.67 7.67 66.67 44 44], 0.02, 0.1, 2.25);
 
+% --- granular & permeability (Phase 4) ---------------------------------
+[k, gg3, phi, cnum] = hertzmind(37, 44, 0.02, [0.3 0.36 0.4]);
+g.hertzmind = [k(:), gg3(:), phi(:), cnum(:)];
+[vp, vs, ro, phi, cnum] = hertzmindv(6.008, 4.075, 2.65, 0.02, [0.3 0.36 0.4]);
+g.hertzmindv = [vp(:), vs(:), ro(:), phi(:), cnum(:)];
+% NOTE: Cem.m hard-codes 3.14 for pi in alam/alamtau; the port uses pi, so
+% these differ by <0.1%. Kept for reference.
+g.Cem_raw = Cem(0.38, 8.5, 45, 0.064, 45, 0.064, 0, 2);
+% NOTE: Johnson.m's 5th output C is the SCALAR contact constant, not the
+% stiffness tensor (the tensor is overwritten). Only the first four
+% outputs are usable as reference values.
+[Vp1, Vp3, s1, s3] = Johnson(44, 0.06, 250e-6, 9, 0.36, -1e-3, -2e-3, 2650, 4*44/(1-0.06));
+g.Johnson = [Vp1, Vp3, s1, s3];
+% NOTE: John_Makse.m cannot run (uses Z before assignment; C12 undefined),
+% so it has no golden values; johnson_makse is a documented reconstruction.
+phiv = [0.05 0.1 0.2 0.3];
+g.KozCarmE = KozCarmE(phiv, 250);
+g.FredrichE = FredrichE(phiv, 100);
+g.PandaLakeKCE = PandaLakeKCE(phiv, 250);
+g.ModKozCarm = ModKozCarm(phiv, 60, 2, 0.02);
+g.CoatDum = CoatDum(phiv, 0.15);
+g.Coates = Coates(phiv, 0.15);
+g.PandaLake = PandaLake(phiv, 2, 0.25, 650, 0.4);
+g.Owolabi = Owolabi(phiv, 0.8);
+g.Bloch = Bloch(1.2, 2.0, 10);
+% NOTE: BernabeE.m cannot be called non-interactively (nargin==5 test on a
+% 4-argument function, inner call missing Phi, output never assigned).
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
