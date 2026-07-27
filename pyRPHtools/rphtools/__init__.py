@@ -5,7 +5,7 @@ Handbook* (Mavko, Mukerji & Dvorkin, Cambridge University Press). See
 ``PORTING_PLAN.md`` at the repository root for scope, conventions, and the
 full MATLAB-to-Python mapping.
 
-Modules ported so far (Phases 1-6):
+Modules ported so far (Phases 1-7 — the port is feature complete):
 
 - `rphtools.moduli` — isotropic moduli/velocity conversions, critical porosity
 - `rphtools.tensors` — 6x6 Voigt utilities, Thomsen parameters, Bond rotation
@@ -20,6 +20,9 @@ Modules ported so far (Phases 1-6):
 - `rphtools.permeability` — empirical and theoretical permeability models
 - `rphtools.seismic` — Kennett and propagator-matrix synthetics, dispersion
 - `rphtools.signal` — spectra, instantaneous attributes, block averaging
+- `rphtools.stats` — histograms, Bayes classification, Monte-Carlo simulation
+- `rphtools.io` — LAS well-log reader
+- `rphtools.plotting` — optional matplotlib companions (imported lazily)
 """
 
 from .avo import (
@@ -93,6 +96,10 @@ from .granular import (
     johnson_makse,
     johnson_stress_anisotropy,
 )
+from .io import (
+    LasFile,
+    load_las,
+)
 from .layered import (
     BackusLogResult,
     BackusResult,
@@ -144,6 +151,16 @@ from .signal import (
     instantaneous_attributes,
     spectrum,
 )
+from .stats import (
+    BayesClassification,
+    Histogram2D,
+    HistogramND,
+    bayes_classify,
+    hist2d,
+    hist3d,
+    monte_carlo_ccdf,
+    monte_carlo_cdf,
+)
 from .tensors import (
     CTIVelocities,
     IsotropicCS,
@@ -166,6 +183,7 @@ __all__ = [
     "AVOAttributes",
     "BackusLogResult",
     "BackusResult",
+    "BayesClassification",
     "BernabePerm",
     "BerrymanSCCurves",
     "BiotDispersion",
@@ -183,6 +201,8 @@ __all__ = [
     "HSVelocityCurves",
     "HertzMindlin",
     "HertzMindlinVelocity",
+    "Histogram2D",
+    "HistogramND",
     "Hudson3Result",
     "HudsonVelocities",
     "InstantaneousAttributes",
@@ -191,6 +211,7 @@ __all__ = [
     "JohnsonResult",
     "KennettFrazerTraveltimes",
     "KennettResult",
+    "LasFile",
     "OwolabiPerm",
     "PERM_MODELS",
     "PropagatorResult",
@@ -207,6 +228,7 @@ __all__ = [
     "backus_average_c",
     "backus_average_log",
     "batzle_wang",
+    "bayes_classify",
     "bernabe_perm",
     "berryman_sc",
     "berryman_sc_pressure",
@@ -243,6 +265,8 @@ __all__ = [
     "hashin_shtrikman_velocity",
     "hertz_mindlin",
     "hertz_mindlin_v",
+    "hist2d",
+    "hist3d",
     "hudson",
     "hudson3",
     "hudson_cone",
@@ -257,8 +281,11 @@ __all__ = [
     "kennett_frazer_traveltimes",
     "kozeny_carman_perm",
     "lame_to_velocity",
+    "load_las",
     "modified_kozeny_carman_perm",
     "moduli_to_velocity",
+    "monte_carlo_ccdf",
+    "monte_carlo_cdf",
     "owolabi_perm",
     "panda_lake_kc_perm",
     "panda_lake_perm",

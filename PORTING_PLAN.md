@@ -495,6 +495,20 @@ imports matplotlib lazily so the core package never requires it.
     (no accumulated scattering left to measure), and the recursion
     accumulates `log` on its principal branch. Both are documented rather
     than "fixed".
+10d. Phase 7 findings in the statistics and I/O files:
+    (a) `hist3d`'s weighted path was broken in MATLAB (it called `hist2d`
+    with four arguments where that function takes three) and its 1-column
+    path called a `hist1d` missing from RPHtools; the NumPy rebuild on
+    explicit bin indices handles 1-3 columns with or without weights.
+    (b) `load_las` splits the LAS mnemonic at its `.` separator, so a
+    curve is named `rhob` with unit `K/M3` reported separately.
+    `loadlas.m` used `strtok` and folded the unit into the name
+    (`rhob_k_m3`), which made curve names awkward to type and unit-
+    dependent. Note the mnemonic field may be space-padded before the dot
+    (`DT  .US/M`), so the split cannot be on whitespace.
+    (c) `bayes_classify` returns 0-based facies indices (MATLAB's were
+    1-based) and excludes the trailing marginal slice of the PDF, as the
+    original's `1:end-1` did.
 10. `hudson_cone` follows the MATLAB matrix assembly (`c12` slot filled with
     `c11 - 2*c66`); the `c12cor` formula printed in `hudsoncone.m` is
     computed there but never used, and disagrees with `c11 - 2*c66` at

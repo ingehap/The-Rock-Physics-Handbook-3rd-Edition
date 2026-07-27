@@ -51,7 +51,7 @@ consistent). Each docstring states its expectations.
 | 4 | `granular`, `permeability` | done |
 | 5 | `avo` | done |
 | 6 | `seismic`, `signal` | done |
-| 7 | `stats`, `io`, `plotting` | planned |
+| 7 | `stats`, `io`, `plotting` | done |
 
 ## MATLAB → Python mapping (ported so far)
 
@@ -136,6 +136,17 @@ consistent). Each docstring states its expectations.
 | `blockav.m` | `rphtools.block_average` |
 | `ft1axis.m` | `rphtools.fft_axis` (`axis=0`) |
 | `ft2axis.m` | `rphtools.fft_axis` (`axis=1`) |
+| `hist2d.m` | `rphtools.hist2d` |
+| `hist3d.m` | `rphtools.hist3d` (1-3 columns; weighted path fixed) |
+| `bayesclass.m` | `rphtools.bayes_classify` |
+| `private/bayesclass.m` | *(not ported — a different, cruder implementation)* |
+| `monte.m` | `rphtools.monte_carlo_cdf` |
+| `monteccdf.m` | `rphtools.monte_carlo_ccdf` |
+| `loadlas.m` | `rphtools.load_las` |
+| `logax.m` | `rphtools.plotting.set_depth_limits` |
+| *(plot side effects of `hash`/`hashv`)* | `rphtools.plotting.plot_bounds` |
+| *(plot side effect of `fftplot`)* | `rphtools.plotting.plot_spectrum` |
+| *(plot side effect of `hist2d`)* | `rphtools.plotting.plot_hist2d` |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in
