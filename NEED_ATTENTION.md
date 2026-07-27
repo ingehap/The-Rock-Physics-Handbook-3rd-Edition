@@ -17,16 +17,13 @@ ported Python code.
 **Needed from you:** confirm what license (if any) applies to the original
 RPHtools code, and choose a license for the port.
 
-### 2. `pdf_bayes` reconstruction scope (decide by Phase 8)
-`pdfbayes.m` cannot be translated because its computational engines
-(`pdfgendraw`, `pdfstat`) are missing from this distribution (see
-`PORTING_PLAN.md`, Section 8). Options: reconstruct the pipeline from the
-surviving `private/` helpers, approximate it with modern SciPy tools
-(`gaussian_kde` + `histogramdd`), or drop it.
-
-**Needed from you:** a preference — reconstruct, approximate, or drop. This
-does not block any other part of the port.
-
 ## Resolved
 
-*(none yet)*
+### `pdf_bayes` reconstruction scope — approximate with SciPy (2026-07-27)
+`pdfbayes.m` cannot be translated because its computational engines
+(`pdfgendraw`, `pdfstat`) are missing from this distribution. **Decision:**
+approximate the pipeline with modern SciPy tools
+(`scipy.stats.gaussian_kde` + `np.histogramdd`) rather than reconstructing
+the original engines or dropping the feature. Differences from the original
+MATLAB will be documented in the `stats.pdf_bayes` docstring. Recorded in
+`PORTING_PLAN.md`, Section 8.

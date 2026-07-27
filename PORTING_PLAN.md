@@ -353,7 +353,7 @@ hard). "MERGE" marks the near-duplicate consolidations from Section 1.
 | `hist3d.m` | `hist3d` | easy | Reimplement on `np.histogramdd`; MATLAB version has a broken weighted-2D fallback (calls hist2d with 4 args) and calls a missing `hist1d` — the numpy rewrite fixes both for free. |
 | `monte.m` | `monte_carlo_cdf` | easy | Non-parametric marginal-CDF draws; strip plotting; `rng` parameter for reproducibility. |
 | `monteccdf.m` | `monte_carlo_ccdf` | moderate | Conditional-CDF variant; 3 internal subfunctions become private module functions. |
-| `pdfbayes.m` | `(stretch)` | hard | Its computational engines (`pdfgendraw`, `pdfstat`) and ten GUI plotters are MISSING from the distribution — porting means reconstruction, not translation. Defer; see Stretch work. |
+| `pdfbayes.m` | `pdf_bayes` | hard | Its computational engines (`pdfgendraw`, `pdfstat`) and ten GUI plotters are MISSING from the distribution — approximate with SciPy (`gaussian_kde` + `histogramdd`) in Phase 8; see Section 8. |
 
 ### `io.py` — data I/O
 
@@ -394,7 +394,7 @@ hard). "MERGE" marks the near-duplicate consolidations from Section 1.
 | `hist1d` | `hist3d.m` | **Obsolete**: `np.histogram` covers it; the numpy rewrite of `hist3d` removes the call. |
 | `Timur`, `Tixier`, `RevilE`, `WylGregE` | `PermMenu.m` menu | **Stretch**: reconstruct from the Handbook's permeability formulas (each is a one-liner); until then the registry ships without them and the README says so. |
 | `walton`, `waltonv`, `squirt`, `stdlin`, `Unconsol`, `v2cti`, `Rorsym`, `Rruger` | nothing (Contents only) | **Stretch**: optional reconstructions from the Handbook to restore parity with the book's index; not needed for any existing code path. |
-| `pdfgendraw`, `pdfstat`, `histnd`, `entropdf`, `str2cell`, ten `figure_*` plotters | `pdfbayes.m`, `private/` | **Defer** (see Section 8): reconstruction project, not a translation. |
+| `pdfgendraw`, `pdfstat`, `histnd`, `entropdf`, `str2cell`, ten `figure_*` plotters | `pdfbayes.m`, `private/` | **Approximate with SciPy** (see Section 8), decided by owner; scheduled in Phase 8. |
 
 ---
 
@@ -446,7 +446,7 @@ imports matplotlib lazily so the core package never requires it.
 
 ---
 
-## 8. Deferred: the `pdfbayes` statistics stack
+## 8. The `pdfbayes` statistics stack — approximate with SciPy
 
 `pdfbayes.m` (non-parametric PDF estimation, Bayes error, information) is the
 one file whose core is unrecoverable from this repository: `pdfgendraw` and
@@ -456,9 +456,11 @@ Porting it means **re-deriving** the pipeline (class-conditional histogram PDFs
 for which `scipy.stats.gaussian_kde` and `np.histogramdd` are the natural
 tools, with `private/bayes.m`, `private/centropy.m`, and `private/cpdf.m`
 serving as partial specifications. This is planned as a separate, final work
-item — it must not block the 90 portable functions — and may land as
-`stats.pdf_bayes()` with clearly documented differences, or be dropped if the
-user prefers.
+item — it must not block the 90 portable functions. **Decision (owner,
+2026-07-27): approximate with SciPy.** The port will land in Phase 8 as
+`stats.pdf_bayes()` built on `scipy.stats.gaussian_kde` and `np.histogramdd`,
+with its differences from the original MATLAB clearly documented in the
+docstring.
 
 ---
 
@@ -513,7 +515,7 @@ are ported public functions.
 | 5 | AVO & impedance: Zoeppritz + approximations, attributes, elastic impedance | `avo` | 5 | M |
 | 6 | Seismic & signal: Kennett, propagator, dispersion/traveltimes, quick sections, wavelets, spectra, attributes | `seismic`, `signal` | 10 | L |
 | 7 | Statistics & I/O: Bayes classification, histograms, Monte Carlo, LAS reader, plotting helpers | `stats`, `io`, `plotting` | 8 | M |
-| 8 | Polish & stretch: README mapping table, examples, missing-function reconstructions (perm four, `walton`/`squirt`/…), `pdf_bayes` reconstruction decision | — | 0–12 | M |
+| 8 | Polish & stretch: README mapping table, examples, missing-function reconstructions (perm four, `walton`/`squirt`/…), `pdf_bayes` SciPy approximation | — | 0–12 | M |
 
 Rationale for the order: Phase 1 unblocks every cluster (Brown–Korringa needs
 `isotropic_cs`; Backus needs `ti_velocities`; Hertz–Mindlin needs the
@@ -536,9 +538,9 @@ toolbox; everything after is dependency-free and ordered by expected use.
 4. **Hanning/taper endpoint semantics** in the seismic module are the most
    likely source of silent numerical drift — covered by dedicated
    fixture tests on the taper itself, not just end-to-end synthetics.
-5. **`pdf_bayes` reconstruction scope** (Section 8) is open: reconstruct,
-   approximate with modern SciPy tools, or drop. Recommendation: decide at
-   Phase 8 with usage priorities; do not block the port on it.
+5. **`pdf_bayes` reconstruction scope** — resolved: the owner chose
+   approximation with modern SciPy tools (see Section 8); scheduled for
+   Phase 8 and does not block the rest of the port.
 
 ---
 
