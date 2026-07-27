@@ -47,7 +47,7 @@ consistent). Each docstring states its expectations.
 | 0 | packaging, CI, test harness, CO2 data conversion | done |
 | 1 | `moduli`, `tensors`, `layered`, `bounds` | done |
 | 2 | `fluids`, `fluid_properties` | done |
-| 3 | `effective_medium`, `cracks` | planned |
+| 3 | `effective_medium`, `cracks` | done |
 | 4 | `granular`, `permeability` | planned |
 | 5 | `avo` | planned |
 | 6 | `seismic`, `signal` | planned |
@@ -90,6 +90,19 @@ consistent). Each docstring states its expectations.
 | `flprop.m` | `rphtools.batzle_wang` |
 | `flpropui.m` | *(not ported — GUI wrapper around flprop)* |
 | `co2prop.m` | `rphtools.co2_properties` |
+| `berrysc.m` | `rphtools.berryman_sc` |
+| `berryscm.m` | `rphtools.berryman_scm` |
+| `berryscp.m` | `rphtools.berryman_sc_pressure` |
+| `dem.m` | `rphtools.dem` |
+| `dem1.m` | `rphtools.dem_at_fraction` |
+| `demyprime.m` | *(private `_dem_rhs`)* |
+| `ode45m.m` | *(not ported — replaced by `scipy.integrate.solve_ivp`)* |
+| `hudson.m` | `rphtools.hudson` |
+| `hudson1.m` | `rphtools.hudson_velocities` |
+| `hudson3.m` | `rphtools.hudson3` |
+| `hudsonF.m` | `rphtools.hudson_fisher` (two bug fixes, see module notes) |
+| `hudsoncone.m` | `rphtools.hudson_cone` |
+| `echeng.m` | `rphtools.eshelby_cheng` |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in

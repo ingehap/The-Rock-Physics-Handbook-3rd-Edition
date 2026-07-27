@@ -13,6 +13,8 @@ Modules ported so far (Phases 1-2):
 - `rphtools.bounds` — Voigt-Reuss and Hashin-Shtrikman bounds
 - `rphtools.fluids` — Gassmann, Brown-Korringa, Biot, squirt, patchy saturation
 - `rphtools.fluid_properties` — Batzle-Wang relations, CO2 property tables
+- `rphtools.effective_medium` — Berryman self-consistent, DEM
+- `rphtools.cracks` — Hudson crack models, Eshelby-Cheng
 """
 
 from .bounds import (
@@ -22,6 +24,26 @@ from .bounds import (
     bounds,
     hashin_shtrikman,
     hashin_shtrikman_velocity,
+)
+from .cracks import (
+    EshelbyCheng,
+    Hudson3Result,
+    HudsonVelocities,
+    eshelby_cheng,
+    hudson,
+    hudson3,
+    hudson_cone,
+    hudson_fisher,
+    hudson_velocities,
+)
+from .effective_medium import (
+    BerrymanSCCurves,
+    DEMResult,
+    berryman_sc,
+    berryman_sc_pressure,
+    berryman_scm,
+    dem,
+    dem_at_fraction,
 )
 from .fluid_properties import (
     FluidProperties,
@@ -80,11 +102,16 @@ __version__ = "0.1.0"
 __all__ = [
     "BackusLogResult",
     "BackusResult",
+    "BerrymanSCCurves",
     "BiotDispersion",
     "CTIVelocities",
     "CriticalPorosity",
+    "DEMResult",
     "ElasticBounds",
+    "EshelbyCheng",
     "FluidProperties",
+    "Hudson3Result",
+    "HudsonVelocities",
     "HSBoundCurves",
     "HSVelocityCurves",
     "IsotropicCS",
@@ -96,6 +123,9 @@ __all__ = [
     "backus_average_c",
     "backus_average_log",
     "batzle_wang",
+    "berryman_sc",
+    "berryman_sc_pressure",
+    "berryman_scm",
     "biot_dispersion",
     "biot_hf",
     "biot_hf_geertsma_smit",
@@ -110,10 +140,18 @@ __all__ = [
     "co2_properties",
     "critical_porosity",
     "cti_to_velocities",
+    "dem",
+    "dem_at_fraction",
+    "eshelby_cheng",
     "gassmann_k",
     "gassmann_vel",
     "hashin_shtrikman",
     "hashin_shtrikman_velocity",
+    "hudson",
+    "hudson3",
+    "hudson_cone",
+    "hudson_fisher",
+    "hudson_velocities",
     "isotropic_cs",
     "lame_to_velocity",
     "moduli_to_velocity",

@@ -447,6 +447,18 @@ imports matplotlib lazily so the core package never requires it.
 8. Permeability functions return arrays/dataclasses, never the MATLAB
    `[Phi K]` horizontal concat (which silently produced a `1×2N` row for row
    inputs).
+9. `hudson_fisher` fixes two bugs found in `hudsonF.m` during Phase 3:
+   (a) the output-density crack porosity was `4*pi*ar/(3*cd)` — dividing by
+   crack density instead of multiplying (`(4*pi/3)*ar*cd` restored); (b) the
+   shear components `c2323`/`c1313`/`c1212` were missing a `mu^2` factor in
+   their U3 terms, violating the exact TI identity `c66 = (c11-c12)/2` that
+   any orientation-averaged medium must satisfy (verified against Hudson's
+   `<M_ij M_kl>` structure; a test asserts the identity).
+10. `hudson_cone` follows the MATLAB matrix assembly (`c12` slot filled with
+    `c11 - 2*c66`); the `c12cor` formula printed in `hudsoncone.m` is
+    computed there but never used, and disagrees with `c11 - 2*c66` at
+    nonzero cone angle — one of the two carries a typo in the original.
+    The cone angle is taken in degrees (MATLAB: radians).
 
 ---
 
