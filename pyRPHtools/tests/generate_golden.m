@@ -142,6 +142,24 @@ g.Bloch = Bloch(1.2, 2.0, 10);
 % NOTE: BernabeE.m cannot be called non-interactively (nargin==5 test on a
 % 4-argument function, inner call missing Phi, output never assigned).
 
+% --- AVO (Phase 5) ------------------------------------------------------
+angs = [0 12 28];
+for m = 1:4
+    g.(sprintf('avopp%d', m)) = avopp(2.6, 1.2, 2.3, 2.2, 1.35, 2.05, angs, m);
+end
+for m = 1:7
+    g.(sprintf('avops%d', m)) = avops(2.6, 1.2, 2.3, 2.2, 1.35, 2.05, [5 18 30], m);
+end
+[A, B1, B2, E1, E2] = avo_abe(2.6, 1.2, 2.3, 2.2, 1.35, 2.05);
+g.avo_abe = [A, B1, B2, E1, E2];
+vpl = [2.6 2.8 2.2 3.0 2.7]'; vsl = [1.2 1.4 1.35 1.5 1.3]'; rol = [2.3 2.35 2.05 2.4 2.32]';
+[ippn, ipsn, ispn, ipp, ips, isp] = eimp(vpl, vsl, rol, 15);
+g.eimp = [ippn, ipsn, ispn, ipp, ips, isp];
+% NOTE: eimp2.m sets vpvs = mean(vp./vs) when K is omitted, which is not
+% 1/mean(vs./vp); pass K explicitly to compare with elastic_impedance.
+[ippn, ipsn, ispn, ipp, ips, isp] = eimp2(vpl, vsl, rol, 20, mean(vsl./vpl));
+g.eimp2 = [ippn, ipsn, ispn, ipp, ips, isp];
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
