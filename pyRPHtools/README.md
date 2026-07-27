@@ -52,6 +52,7 @@ consistent). Each docstring states its expectations.
 | 5 | `avo` | done |
 | 6 | `seismic`, `signal` | done |
 | 7 | `stats`, `io`, `plotting` | done |
+| 8 | golden fixtures, reconstructions, `pdf_bayes` | done |
 
 ## MATLAB → Python mapping (ported so far)
 
@@ -136,6 +137,9 @@ consistent). Each docstring states its expectations.
 | `blockav.m` | `rphtools.block_average` |
 | `ft1axis.m` | `rphtools.fft_axis` (`axis=0`) |
 | `ft2axis.m` | `rphtools.fft_axis` (`axis=1`) |
+| *(missing `v2cti`)* | `rphtools.ti_from_velocities` (reconstructed) |
+| *(missing `Unconsol`)* | `rphtools.unconsolidated` (reconstructed) |
+| `pdfbayes.m` | `rphtools.pdf_bayes` (reconstructed — engines missing) |
 | `hist2d.m` | `rphtools.hist2d` |
 | `hist3d.m` | `rphtools.hist3d` (1-3 columns; weighted path fixed) |
 | `bayesclass.m` | `rphtools.bayes_classify` |

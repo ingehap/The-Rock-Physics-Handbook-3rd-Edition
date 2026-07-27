@@ -13,6 +13,8 @@ MATLAB        Python                 Notes
 ``ezbond.m``  `bond_rotation`        Plus the `bond_matrix` helper.
 (new)         `ti_voigt_matrix`      Builds the 6x6 VTI matrix from the five
                                      independent constants.
+(missing)     `ti_from_velocities`   Reconstruction of ``v2cti``: the exact
+                                     inverse of `thomsen_params`.
 ============  =====================  ==========================================
 
 Stiffness/compliance matrices use the 6x6 Voigt notation of the Handbook,
@@ -40,6 +42,7 @@ __all__ = [
     "thomsen_params",
     "ti_c_to_s",
     "ti_velocities",
+    "ti_from_velocities",
     "ti_voigt_matrix",
 ]
 
@@ -411,3 +414,50 @@ def bond_rotation(c, theta_deg):
     """
     m = bond_matrix(theta_deg)
     return m @ np.asarray(c, float) @ m.T
+
+
+def ti_from_velocities(vp0, vs0, rho, epsilon, gamma, delta):
+    """TI stiffnesses from vertical velocities and Thomsen parameters.
+
+    The exact inverse of `thomsen_params` combined with
+    ``c33 = rho vp0^2``, ``c44 = rho vs0^2``.
+
+    Parameters
+    ----------
+    vp0, vs0 : array_like
+        P and S velocities along the symmetry axis.
+    rho : array_like
+        Density (units consistent with the velocities).
+    epsilon, gamma, delta : array_like
+        Thomsen (1986) anisotropy parameters.
+
+    Returns
+    -------
+    c11, c12, c13, c33, c44, c66 : ndarray
+        The TI stiffnesses. Pass them to `ti_voigt_matrix` for the 6x6
+        form.
+
+    Notes
+    -----
+    Reconstruction of ``v2cti``, which the RPHtools ``Contents.m`` lists
+    but which is absent from the distribution. Nothing calls it, so no
+    existing code path depended on it. Unlike the empirical models still
+    missing from the toolbox, this one is pure algebra: inverting the
+    Thomsen definitions is exact, and the round trip against
+    `thomsen_params` is asserted in the test suite.
+
+    ``delta`` fixes ``c13`` through
+    ``(c13 + c44)^2 = 2 c33 (c33 - c44) delta + (c33 - c44)^2``; the
+    positive root is taken, which is the physical branch for
+    ``c13 + c44 > 0``.
+    """
+    vp0, vs0, rho = (np.asarray(a, float) for a in (vp0, vs0, rho))
+    epsilon, gamma, delta = (np.asarray(a, float) for a in (epsilon, gamma, delta))
+
+    c33 = rho * vp0**2
+    c44 = rho * vs0**2
+    c11 = c33 * (1.0 + 2.0 * epsilon)
+    c66 = c44 * (1.0 + 2.0 * gamma)
+    c12 = c11 - 2.0 * c66
+    c13 = np.sqrt(2.0 * c33 * (c33 - c44) * delta + (c33 - c44) ** 2) - c44
+    return c11, c12, c13, c33, c44, c66

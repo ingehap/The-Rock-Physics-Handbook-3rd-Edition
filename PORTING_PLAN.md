@@ -353,7 +353,7 @@ hard). "MERGE" marks the near-duplicate consolidations from Section 1.
 | `hist3d.m` | `hist3d` | easy | Reimplement on `np.histogramdd`; MATLAB version has a broken weighted-2D fallback (calls hist2d with 4 args) and calls a missing `hist1d` — the numpy rewrite fixes both for free. |
 | `monte.m` | `monte_carlo_cdf` | easy | Non-parametric marginal-CDF draws; strip plotting; `rng` parameter for reproducibility. |
 | `monteccdf.m` | `monte_carlo_ccdf` | moderate | Conditional-CDF variant; 3 internal subfunctions become private module functions. |
-| `pdfbayes.m` | `pdf_bayes` | hard | Its computational engines (`pdfgendraw`, `pdfstat`) and ten GUI plotters are MISSING from the distribution — approximate with SciPy (`gaussian_kde` + `histogramdd`) in Phase 8; see Section 8. |
+| `pdfbayes.m` | `pdf_bayes` | hard | Its computational engines (`pdfgendraw`, `pdfstat`) and ten GUI plotters are MISSING from the distribution — approximated with SciPy (`histogramdd` + `ndimage.gaussian_filter`) in Phase 8; see Section 8. |
 
 ### `io.py` — data I/O
 
@@ -392,8 +392,9 @@ hard). "MERGE" marks the near-duplicate consolidations from Section 1.
 | `v2ku`, `v2lm` | `hertzmindv.m`; Contents | **Reconstruct now** (one-line inverses of `ku2v`/`lm2v`). |
 | `sourcewvlt` | `kennet.m`, `pgator.m` | **Replace**: provide a documented `ricker()` default; the original wavelet is unknown, so the default is new behavior (noted in docstrings). |
 | `hist1d` | `hist3d.m` | **Obsolete**: `np.histogram` covers it; the numpy rewrite of `hist3d` removes the call. |
-| `Timur`, `Tixier`, `RevilE`, `WylGregE` | `PermMenu.m` menu | **Stretch**: reconstruct from the Handbook's permeability formulas (each is a one-liner); until then the registry ships without them and the README says so. |
-| `walton`, `waltonv`, `squirt`, `stdlin`, `Unconsol`, `v2cti`, `Rorsym`, `Rruger` | nothing (Contents only) | **Stretch**: optional reconstructions from the Handbook to restore parity with the book's index; not needed for any existing code path. |
+| `Timur`, `Tixier`, `RevilE`, `WylGregE` | `PermMenu.m` menu | **Not attempted.** Published sources disagree on their regression constants and on whether porosity enters as a fraction or a percentage; the registry ships without them. Logged in `NEED_ATTENTION.md`. |
+| `Unconsol`, `v2cti` | nothing (Contents only) | **Done** (Phase 8): `unconsolidated` and `ti_from_velocities`. Both are fixed exactly by properties the port can check — `v2cti` is the algebraic inverse of `thomsen_params`, and `Unconsol` must equal Hertz-Mindlin at the critical porosity and the mineral at zero porosity. |
+| `walton`, `waltonv`, `squirt`, `stdlin`, `Rorsym`, `Rruger` | nothing (Contents only) | **Not attempted.** Each needs published empirical constants or a specific formulation that cannot be verified from the code alone; guessing them would put unverifiable physics in the library. Logged in `NEED_ATTENTION.md`. |
 | `pdfgendraw`, `pdfstat`, `histnd`, `entropdf`, `str2cell`, ten `figure_*` plotters | `pdfbayes.m`, `private/` | **Approximate with SciPy** (see Section 8), decided by owner; scheduled in Phase 8. |
 
 ---
@@ -517,21 +518,27 @@ imports matplotlib lazily so the core package never requires it.
 
 ---
 
-## 8. The `pdfbayes` statistics stack — approximate with SciPy
+## 8. The `pdfbayes` statistics stack — approximate with SciPy (done)
 
 `pdfbayes.m` (non-parametric PDF estimation, Bayes error, information) is the
 one file whose core is unrecoverable from this repository: `pdfgendraw` and
 `pdfstat` are missing, as are the primitives under `private/`'s call graph.
 Porting it means **re-deriving** the pipeline (class-conditional histogram PDFs
 → Gaussian kernel smoothing → Bayes confusion/error → conditional entropy),
-for which `scipy.stats.gaussian_kde` and `np.histogramdd` are the natural
-tools, with `private/bayes.m`, `private/centropy.m`, and `private/cpdf.m`
-serving as partial specifications. This is planned as a separate, final work
-item — it must not block the 90 portable functions. **Decision (owner,
-2026-07-27): approximate with SciPy.** The port will land in Phase 8 as
-`stats.pdf_bayes()` built on `scipy.stats.gaussian_kde` and `np.histogramdd`,
-with its differences from the original MATLAB clearly documented in the
-docstring.
+with `private/bayes.m`, `private/centropy.m`, and `private/cpdf.m` serving as
+partial specifications. This was planned as a separate, final work item so it
+would not block the 90 portable functions. **Decision (owner, 2026-07-27):
+approximate with SciPy.**
+
+**Landed in Phase 8 as `stats.pdf_bayes()`.** Reading the three surviving
+helpers showed the original smooths a *multidimensional histogram* with a
+Gaussian kernel, so the port pairs `np.histogramdd` with
+`scipy.ndimage.gaussian_filter` (bandwidth converted to a per-axis sigma in
+bin units) rather than `scipy.stats.gaussian_kde`: it reproduces the
+described algorithm more closely, and it returns the PDF on the same regular
+grid `bayes_classify` already consumes, so the two compose directly. Every
+difference from the original MATLAB is listed in the function's Notes
+section.
 
 ---
 
