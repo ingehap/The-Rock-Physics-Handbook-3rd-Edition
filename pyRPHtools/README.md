@@ -160,9 +160,25 @@ pytest pyRPHtools
 ruff check pyRPHtools
 ```
 
-Tests are analytic-invariant based (round trips, limiting cases, symmetries,
-cross-consistency between merged MATLAB twins). `tests/generate_golden.m` is
-an Octave script that runs the *original* MATLAB functions to produce golden
-fixtures in `tests/golden/`; fixtures are committed once generated so CI
-never needs Octave. (Not yet generated — Octave is unavailable in the
-current development environment; the invariant tests stand in until then.)
+Two complementary layers:
+
+**Golden values from the original MATLAB.** `tests/generate_golden.m` runs
+the RPHtools `.m` files themselves under GNU Octave and writes
+`tests/golden/phase1.json`; `tests/test_golden.py` asserts the port
+reproduces them. Most quantities match to 1e-10 relative or better.
+The fixture is committed, so CI needs no Octave — regenerate it with:
+
+```bash
+apt-get install -y octave                       # plus gnuplot-nox if desired
+octave --no-gui --quiet pyRPHtools/tests/generate_golden.m
+```
+
+`tests/octave_shims/` supplies what modern Octave lacks: the legacy
+`bessel`, the toolbox functions `harmmean`/`nanmean`/`hilbert`, the
+reconstruction of the missing `v2ku`, and no-op plotting stubs (many
+RPHtools functions draw figures unconditionally).
+
+**Analytic invariants.** Round trips, limiting cases, symmetries, and
+cross-consistency between merged MATLAB twins — these cover the functions
+whose originals cannot run at all, and catch classes of error that
+matching one set of numbers would not.
