@@ -270,7 +270,7 @@ hard). "MERGE" marks the near-duplicate consolidations from Section 1.
 | `biot.m` | `biot_dispersion` | moderate | Full frequency-dependent Biot velocities and attenuation. Legacy `bessel` → `scipy.special.jv`; complex arithmetic throughout. |
 | `biothf.m` | `biot_hf` | easy | High-frequency limit; share the dry-moduli/density preamble across the Biot family. |
 | `biothfb.m` | `biot_hf_geertsma_smit` | easy | Approximate HF limit. |
-| `biothfgs.m` | `(test oracle)` | trivial | Undocumented re-derivation of `biot_hf`; keep only as a cross-check in tests. |
+| `biothfgs.m` | `(test oracle)` | trivial | Not a re-derivation of `biot_hf` as it first appears: it computes `sqrt(vp1^2 + vp2^2)` (the root-sum of the HF quadratic), an approximation neglecting the slow wave. Kept as a test-oracle identity. |
 | `bkti.m` | `brown_korringa_ti` | easy | Brown and Korringa (1975) anisotropic fluid substitution specialized to TI (or isotropic) symmetry: computes saturated-rock compliances from dry-rock and mineral compliances given as 5-element rows [s11 s12 s13 s33 s44]. |
 | `BKc2c.m` | `brown_korringa_c` | trivial | Stiffness-domain wrapper over s2d/d2s. |
 | `BKd2s.m` | `brown_korringa_dry_to_sat` | easy | Brown-Korringa (1975) dry-to-saturated substitution on the 6x6 compliance matrix, isotropic mineral. |
