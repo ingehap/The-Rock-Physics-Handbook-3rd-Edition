@@ -431,8 +431,12 @@ imports matplotlib lazily so the core package never requires it.
 1. `hist3d` weighted-2D path works (broken call into `hist2d` in MATLAB).
 2. `berryscp` pressure-step selection uses a deterministic tie-break
    (`find(k==max(k))` bug).
-3. `backus_average` raises on `sum(f)` violations instead of `pause`, and its
-   self-check tolerances are relative, not absolute-in-km/s.
+3. `backus_average` always normalizes the fractions by their sum (as
+   `bkusc.m` did; raw thicknesses are accepted) and raises on non-finite or
+   negative fractions instead of `bkus.m`'s `pause`. Its runtime
+   `c66 == (c11-c12)/2` self-check is dropped: the equality is a mathematical
+   identity of the Backus average (both sides reduce to `sum(f*mu)`), so the
+   check could never fire; it is asserted in the test suite instead.
 4. `backus_average_log` raises on non-monotonic depth.
 5. `gassmann_vel` inherits `gassmann_k`'s `phi == 0` pass-through guard
    (MATLAB's inline copy lacked it).
