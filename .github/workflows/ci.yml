@@ -20,7 +20,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
-        run: pip install "./pyRPHtools[dev]"
+        # [plot] as well as [dev], so the plotting tests actually run
+        # instead of skipping on a missing matplotlib.
+        run: pip install "./pyRPHtools[dev,plot]"
       - name: Lint
         run: ruff check pyRPHtools
       - name: Test

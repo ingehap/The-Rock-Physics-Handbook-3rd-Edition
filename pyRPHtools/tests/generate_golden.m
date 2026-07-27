@@ -185,6 +185,24 @@ g.fftplot = [ds(:), amp(:), ph(:)];
 [ia, ip, ifr] = iatrib(rng_data);
 g.iatrib_amp = ia(:); g.iatrib_phi = ip(:); g.iatrib_freq = ifr(:);
 
+% --- stats & io (Phase 7) ----------------------------------------------
+d2 = [0.1 2.0; 0.4 2.3; 0.2 2.1; 0.35 2.25; 0.15 2.05; 0.3 2.2];
+[nn, xx1, xx2] = hist2d(d2, 4, 3);
+g.hist2d_counts = nn; g.hist2d_c1 = xx1(:); g.hist2d_c2 = xx2(:);
+[nn, xx1, xx2] = hist2d(d2, [0.1 0.2 0.3 0.4], [2.0 2.15 2.3]);
+g.hist2d_centres_counts = nn;
+% NOTE: hist3d.m's weighted path calls hist2d with 4 args (hist2d takes 3)
+% and its 1-column path calls a missing hist1d, so only the unweighted
+% 3-column case can produce golden values.
+d3 = [d2, [1.0; 1.4; 1.1; 1.35; 1.05; 1.3]];
+[nn3, a1, a2, a3] = hist3d(d3, 3);
+g.hist3d_counts = nn3(:);
+% NOTE: monte.m / monteccdf.m draw from rand/randn with no seed argument,
+% so they have no reproducible golden values; the port is tested by
+% distributional invariants instead.
+% NOTE: loadlas.m requires an actual LAS file on disk; the port is tested
+% against a fixture written by the test suite.
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
