@@ -88,6 +88,32 @@ g.flprop = [Kreuss,rhoeff,Kvoigt,vpb,rhob,Kb,vpo,rhoo,Ko,vpg,rhog,Kg,gor];
 [k, rho, vp] = co2prop(60, 15);
 g.co2prop = [k, rho, vp];
 
+% --- effective medium & cracks (Phase 3) -------------------------------
+[kbr, mubr] = berryscm([37 2.2], [44 0], [1 0.1], [0.7 0.3]);
+g.berryscm = [kbr, mubr];
+[kbr, mubr, por] = berrysc(37, 44, 2.2, 0, 1, 0.1);
+g.berrysc = [kbr(:), mubr(:), por(:)];
+[kbr, mubr] = berryscp([37 2.2 2.2], [44 0 0], [1 0.01 0.5], [0.8 0.05 0.15], [0 0.05 0.2]);
+g.berryscp = [kbr(:), mubr(:)];
+[k, mu, por] = dem(37, 44, 2.2, 0, 0.1, 1);
+g.dem = [k(:), mu(:), por(:)];  % adaptive steps: compare by interpolation
+[k, mu] = dem1(37, 44, 2.2, 0, 0.2, 1, 0.35);
+g.dem1 = [k, mu];
+[Ctih, den] = hudson(0.05, 0.01, 2.25, 1.0, 37, 44, 2.65, 3);
+g.hudson = Ctih; g.hudson_den = den;
+[Vp0, Vs0, e, gg2, d, Ctih] = hudson1(0.05, 0.01, 2.25, 37, 44, 2.6, 3);
+g.hudson1 = [Vp0, Vs0, e, gg2, d];
+[C, den] = hudson3([0.03 0.02 0.01], [0.01 0.01 0.01], 2.25, 1.0, 37, 44, 2.65);
+g.hudson3 = C; g.hudson3_den = den;
+% NOTE: hudsonF.m has two known bugs (density porosity 4*pi*ar/(3*cd);
+% missing mu^2 in the shear U3 terms) fixed in the port — its raw output
+% will NOT match hudson_fisher. Kept here for reference only.
+[C, den] = hudsonF(0.05, 0.01, 2.25, 1.0, 37, 44, 2.65, 0.4);
+g.hudsonF_raw = C; g.hudsonF_raw_den = den;
+[Vp0, Vs0, e, gg2, d, C] = hudsoncone(0.05, 0.01, 2.25, 37, 44, 2.65, 30*pi/180, 3);
+g.hudsoncone = C;  % port takes the angle in degrees: 30
+g.echeng = echeng([66.67 7.67 66.67 44 44], 0.02, 0.1, 2.25);
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
