@@ -12,6 +12,8 @@ MATLAB             Python                    Notes
 ``monte.m``        `monte_carlo_cdf`
 ``monteccdf.m``    `monte_carlo_ccdf`        Its three subfunctions become
                                              private helpers.
+``pdfbayes.m``     `pdf_bayes`               RECONSTRUCTION, not a port:
+                                             its engines are missing.
 =================  ========================  =================================
 
 All three histogram-based routines share one binning convention, factored
@@ -52,6 +54,8 @@ __all__ = [
     "hist3d",
     "monte_carlo_ccdf",
     "monte_carlo_cdf",
+    "pdf_bayes",
+    "PdfBayesResult",
 ]
 
 
@@ -408,3 +412,190 @@ def monte_carlo_ccdf(params, n, rng=None):
         cdfs, edges = _conditional_cdfs(p[:, 0], p[:, k])
         out[:, k] = _draw_conditional(cdfs, edges, out[:, 0], rng)
     return out
+
+
+class PdfBayesResult(NamedTuple):
+    """Non-parametric PDF estimate and its Bayes classification statistics."""
+
+    pdf: np.ndarray
+    """Smoothed class-conditional PDFs, shape ``(*nbins, nfacies + 1)``.
+    The trailing slice is the prior-weighted marginal, matching the layout
+    `bayes_classify` expects."""
+    axes: tuple
+    """Bin centres, one array per attribute."""
+    bandwidth: np.ndarray
+    """Standard deviation of the smoothing kernel per attribute, in data
+    units — interpretable as the measurement error of each attribute."""
+    joint: np.ndarray
+    """Joint probability ``p(predicted=i, true=j)``, shape
+    ``(nfacies, nfacies)``."""
+    conditional: np.ndarray
+    """``p(true=j | predicted=i)``, the rows of `joint` normalized."""
+    success_rate: float
+    """Probability of correct classification (the trace of `joint`)."""
+    error: float
+    """Total Bayes classification error, ``1 - success_rate``."""
+    entropy: float
+    """``H(facies)``, the unconditional entropy of the facies, in bits."""
+    cond_entropy: float
+    """``H(facies | attributes)``, in bits."""
+    cond_info: float
+    """``I(facies; attributes)``, the mutual information, in bits."""
+    cond_entropy_norm: float
+    """``H(facies | attributes) / H(facies)``; 0 means the attributes
+    determine the facies completely, 1 means they say nothing. Being a
+    ratio, it does not depend on the logarithm base."""
+
+
+def _entropy(p):
+    """Shannon entropy in bits of a probability array (zeros ignored)."""
+    p = np.asarray(p, float)
+    p = p[p > 0]
+    if p.size == 0:
+        return 0.0
+    p = p / p.sum()
+    return float(-np.sum(p * np.log2(p)))
+
+
+def pdf_bayes(data, code, weights=None, bins=10, smoothing=0.1, priors=None):
+    """Non-parametric PDF estimation with Bayes error and information.
+
+    Builds a smoothed class-conditional probability density for each
+    facies over 1-3 attributes, then reports how well those attributes
+    separate the facies: the Bayes classification error, the joint and
+    conditional probability tables, and the entropy and mutual
+    information of the facies given the attributes.
+
+    Parameters
+    ----------
+    data : array_like
+        ``(n, k)`` array of attributes, ``k`` of 1, 2, or 3.
+    code : array_like
+        Facies code for each sample. Any hashable labels; they are sorted
+        and mapped to the rows/columns of `joint` in that order.
+    weights : array_like, optional
+        Per-sample weight (the MATLAB's optional second column of
+        ``CODE``). Defaults to 1 for every sample.
+    bins : int or sequence, optional
+        Number of bins per attribute, or explicit bin centres per
+        attribute. Defaults to 10.
+    smoothing : float or sequence, optional
+        Kernel width as a fraction of each attribute's standard
+        deviation, the MATLAB's ``OBS``. Defaults to 0.1.
+    priors : array_like, optional
+        Prior probability of each facies. Defaults to the observed
+        (weighted) frequencies.
+
+    Returns
+    -------
+    PdfBayesResult
+
+    See Also
+    --------
+    bayes_classify : apply the resulting `pdf` to new samples.
+
+    Notes
+    -----
+    **This is a reconstruction, not a port.** ``pdfbayes.m``'s two
+    computational engines (``pdfgendraw`` and ``pdfstat``) and the
+    primitives its ``private/`` helpers call (``histnd``, ``entropdf``)
+    are all missing from RPHtools, so the function cannot be translated.
+    The pipeline here follows what the surviving pieces specify:
+    ``private/cpdf.m`` for weighted per-facies histograms normalized to
+    unit sum with a prior-weighted marginal appended, ``pdfbayes.m``'s own
+    documentation for the Gaussian kernel width
+    (``obs * std(attribute)``), ``private/bayes.m`` for the joint
+    probability table, and ``private/centropy.m`` for the entropy
+    combinations.
+
+    Two details could not be recovered and are chosen here: smoothing uses
+    ``scipy.ndimage.gaussian_filter`` (the MATLAB smoothed the histogram
+    with a Gaussian kernel of that width, so this matches the described
+    algorithm), and entropies are in **bits** — ``entropdf`` is missing, so
+    its logarithm base is unknown. `cond_entropy_norm` is a ratio and is
+    unaffected by that choice.
+
+    Unlike ``private/bayes.m``, which broke ties between equally probable
+    facies by adding random noise, ties here go to the lowest facies
+    index, so results are reproducible.
+    """
+    from scipy.ndimage import gaussian_filter
+
+    data = np.atleast_2d(np.asarray(data, float))
+    ncol = data.shape[1]
+    if not 1 <= ncol <= 3:
+        raise ValueError("data must have one, two, or three attribute columns")
+    code = np.ravel(np.asarray(code))
+    if code.size != data.shape[0]:
+        raise ValueError("code must have one entry per sample")
+    w = np.ones(code.size) if weights is None else np.ravel(np.asarray(weights, float))
+
+    facies = np.unique(code)
+    nfac = facies.size
+
+    specs = list(bins) if isinstance(bins, (list, tuple)) else [bins] * ncol
+    idx, axes, shape = [], [], []
+    for k in range(ncol):
+        i, c, n = _bin_index(data[:, k], specs[k])
+        idx.append(i)
+        axes.append(c)
+        shape.append(n)
+
+    scale = np.atleast_1d(np.asarray(smoothing, float))
+    if scale.size == 1:
+        scale = np.repeat(scale, ncol)
+    bandwidth = scale * np.std(data, axis=0)
+    # Kernel width in bins: the physical width over the bin spacing.
+    sigma = [
+        bandwidth[k] / (axes[k][1] - axes[k][0]) if len(axes[k]) > 1 else 0.0 for k in range(ncol)
+    ]
+
+    pdf = np.zeros(tuple(shape) + (nfac + 1,))
+    observed = np.zeros(nfac)
+    for f, label in enumerate(facies):
+        mask = code == label
+        hist = np.zeros(shape)
+        np.add.at(hist, tuple(i[mask] for i in idx), w[mask])
+        observed[f] = w[mask].sum()
+        hist = gaussian_filter(hist, sigma=sigma, mode="nearest")
+        total = hist.sum()
+        pdf[..., f] = hist / total if total else hist
+
+    prior = observed / observed.sum() if priors is None else np.asarray(priors, float)
+    prior = prior / prior.sum()
+    pdf[..., nfac] = np.sum(pdf[..., :nfac] * prior, axis=-1)
+
+    # --- Bayes statistics on the prior-weighted PDFs ---------------------
+    weighted = pdf[..., :nfac] * prior
+    predicted = np.argmax(weighted, axis=-1)
+    joint = np.zeros((nfac, nfac))
+    for i in range(nfac):
+        cell = predicted == i
+        for j in range(nfac):
+            joint[i, j] = weighted[..., j][cell].sum()
+
+    row_sums = joint.sum(axis=1, keepdims=True)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        conditional = np.where(row_sums > 0, joint / row_sums, 0.0)
+    success = float(np.trace(joint))
+
+    # --- entropies (private/centropy.m) ----------------------------------
+    h_given_facies = float(np.sum([prior[f] * _entropy(pdf[..., f]) for f in range(nfac)]))
+    h_attributes = _entropy(pdf[..., nfac])
+    info = h_attributes - h_given_facies
+    h_facies = _entropy(prior)
+    h_facies_given = h_facies - info
+
+    return PdfBayesResult(
+        pdf=pdf,
+        axes=tuple(axes),
+        bandwidth=bandwidth,
+        joint=joint,
+        conditional=conditional,
+        success_rate=success,
+        error=1.0 - success,
+        entropy=h_facies,
+        cond_entropy=h_facies_given,
+        cond_info=info,
+        cond_entropy_norm=h_facies_given / h_facies if h_facies else 0.0,
+    )

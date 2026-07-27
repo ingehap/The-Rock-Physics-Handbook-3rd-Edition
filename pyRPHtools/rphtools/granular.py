@@ -14,6 +14,8 @@ MATLAB             Python                        Notes
                                                  the MATLAB overwrote.
 ``John_Makse.m``   `johnson_makse`               Reconstructed: the MATLAB was
                                                  not runnable as shipped.
+(missing)          `unconsolidated`              Reconstruction of ``Unconsol``,
+                                                 absent from RPHtools.
 =================  ============================  ==============================
 
 Behavior notes (deliberate changes from MATLAB, see PORTING_PLAN.md):
@@ -66,6 +68,8 @@ __all__ = [
     "hertz_mindlin_v",
     "johnson_makse",
     "johnson_stress_anisotropy",
+    "unconsolidated",
+    "UnconsolidatedSand",
 ]
 
 #: Porosity-coordination number relation from The Rock Physics Handbook,
@@ -592,3 +596,77 @@ def johnson_makse(
         n=n,
         c=c,
     )
+
+
+class UnconsolidatedSand(NamedTuple):
+    """Dry-frame moduli of an unconsolidated (friable) sand."""
+
+    k: np.ndarray
+    """Dry-frame bulk modulus."""
+    g: np.ndarray
+    """Dry-frame shear modulus."""
+    phi: np.ndarray
+    """Porosity."""
+
+
+def unconsolidated(k_min, g_min, pressure, phi=None, phi_c=0.36, coord=None):
+    """Dry moduli of an unconsolidated sand (modified Hashin-Shtrikman lower bound).
+
+    Interpolates between the Hertz-Mindlin sphere-pack moduli at the
+    critical porosity and the mineral moduli at zero porosity, along the
+    modified Hashin-Shtrikman *lower* bound. This is the friable-sand (or
+    "unconsolidated") trend: porosity below critical is treated as
+    well-sorted grains progressively packed tighter, not as cemented.
+
+    Parameters
+    ----------
+    k_min, g_min : float
+        Mineral bulk and shear moduli.
+    pressure : float
+        Effective pressure, in the same units as the moduli.
+    phi : array_like, optional
+        Porosities at which to evaluate, from 0 to `phi_c`. Defaults to
+        50 points across that range.
+    phi_c : float, optional
+        Critical porosity of the uncemented pack. Defaults to 0.36.
+    coord : float, optional
+        Coordination number at the critical porosity. Defaults to
+        `coordination_number(phi_c)`.
+
+    Returns
+    -------
+    UnconsolidatedSand
+        Named tuple ``(k, g, phi)``.
+
+    Notes
+    -----
+    Reconstruction of ``Unconsol``, which the RPHtools ``Contents.m``
+    lists but which is absent from the distribution (nothing called it).
+    The model is fixed by its two endpoints, and the implementation is
+    verified against both: at ``phi = phi_c`` it returns the
+    Hertz-Mindlin moduli exactly, and at ``phi = 0`` the mineral moduli
+    exactly. Both are asserted in the test suite.
+
+    References
+    ----------
+    Dvorkin, J., and Nur, A., 1996: Geophysics, 61, 1363-1370;
+    The Rock Physics Handbook, unconsolidated-sand model.
+    """
+    if phi is None:
+        phi = np.linspace(0.0, phi_c, 50)
+    phi = np.atleast_1d(np.asarray(phi, float))
+    if np.any(phi < 0) or np.any(phi > phi_c):
+        raise ValueError("phi must lie between 0 and phi_c")
+
+    coord = float(coordination_number(phi_c)) if coord is None else float(coord)
+    k_hm, g_hm = _hertz_mindlin_moduli(k_min, g_min, float(pressure), phi_c, coord)
+
+    frac = phi / phi_c
+    k = (
+        1.0 / (frac / (k_hm + 4.0 / 3.0 * g_hm) + (1.0 - frac) / (k_min + 4.0 / 3.0 * g_hm))
+        - 4.0 / 3.0 * g_hm
+    )
+
+    z = (g_hm / 6.0) * (9.0 * k_hm + 8.0 * g_hm) / (k_hm + 2.0 * g_hm)
+    g = 1.0 / (frac / (g_hm + z) + (1.0 - frac) / (g_min + z)) - z
+    return UnconsolidatedSand(k=k, g=g, phi=phi)

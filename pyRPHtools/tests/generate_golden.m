@@ -8,9 +8,21 @@
 % committed so CI never needs Octave; re-run this script only to regenerate
 % them (e.g. after adding cases).
 %
-% Covers the Phase 1 functions. Extend per phase as the port grows.
+% Covers every RPHtools function that can actually be run. Functions that
+% cannot are noted inline with the reason (several are simply broken; see
+% PORTING_PLAN.md section 7.4).
+%
+% octave_shims/ supplies what modern Octave lacks: the legacy `bessel`,
+% the Statistics/Signal Toolbox `harmmean`, `nanmean` and `hilbert`, the
+% reconstruction of the missing `v2ku`, and no-op plotting stubs (many
+% RPHtools functions draw figures unconditionally).
 
 addpath('RPHtools');
+% Shims for legacy MATLAB functions RPHtools calls that modern
+% MATLAB/Octave no longer provide (see octave_shims/).
+addpath('pyRPHtools/tests/octave_shims');
+% octave_shims/ also contains no-op plotting stubs, because many RPHtools
+% functions draw figures unconditionally and no display is available.
 outdir = 'pyRPHtools/tests/golden';
 if ~exist(outdir, 'dir'), mkdir(outdir); end
 
@@ -137,7 +149,10 @@ g.ModKozCarm = ModKozCarm(phiv, 60, 2, 0.02);
 g.CoatDum = CoatDum(phiv, 0.15);
 g.Coates = Coates(phiv, 0.15);
 g.PandaLake = PandaLake(phiv, 2, 0.25, 650, 0.4);
-g.Owolabi = Owolabi(phiv, 0.8);
+% NOTE: Owolabi.m cannot be called with arguments at all: it declares
+% `function e = Owolabi(Phi,Swi)` but line 54 calls `Owo(Phi,Swr)`, and
+% Swr is never defined. Only the interactive no-argument path works.
+% (Found by running it; static reading had missed this one.)
 g.Bloch = Bloch(1.2, 2.0, 10);
 % NOTE: BernabeE.m cannot be called non-interactively (nargin==5 test on a
 % 4-argument function, inner call missing Phi, output never assigned).
@@ -162,7 +177,11 @@ g.eimp2 = [ippn, ipsn, ispn, ipp, ips, isp];
 
 % --- seismic & signal (Phase 6) ----------------------------------------
 % NOTE: sourcewvlt.m is missing, so an explicit wavelet must be supplied.
-tw = (-0.066:0.001:0.066); wv = (1-2*(pi*30*tw).^2).*exp(-(pi*30*tw).^2);
+% An EVEN-length wavelet: kennet.m calls hanning(n/2), which errors for
+% odd n. (That is precisely the failure kennett_aux.m's round() fixes,
+% and which the port handles; only the even path can be captured here.)
+tw = ((0:127) - 63.5) * 0.001;
+wv = (1 - 2*(pi*30*tw).^2) .* exp(-(pi*30*tw).^2);
 lyr2 = [2000 2000 80; 2600 2300 90];
 lyr3 = [2000 2000 40; 3200 2500 15; 2400 2150 60];
 [wz, pz, tf] = kennet(lyr2, wv, 0.001, 2, 0, -1);
@@ -180,8 +199,11 @@ g.kenfrtt = [tt(:), rt(:), emtt(:)];
 % (undefined fc), so it produces no golden values.
 rng_data = [1 2 3 4 5 4 3 2 1 0 -1 -2]';
 g.blockav = blockav(rng_data, 4);
+% NOTE: fftplot.m documents its third output as "frequency step vector
+% corresponding to AMP and PHASE" but returns the scalar step; the port's
+% spectrum() returns the axis itself, as documented. Record both.
 [amp, ph, ds] = fftplot(rng_data', 0.004);
-g.fftplot = [ds(:), amp(:), ph(:)];
+g.fftplot_amp = amp(:); g.fftplot_phase = ph(:); g.fftplot_step = ds;
 [ia, ip, ifr] = iatrib(rng_data);
 g.iatrib_amp = ia(:); g.iatrib_phi = ip(:); g.iatrib_freq = ifr(:);
 
