@@ -5,7 +5,7 @@ Handbook* (Mavko, Mukerji & Dvorkin, Cambridge University Press). See
 ``PORTING_PLAN.md`` at the repository root for scope, conventions, and the
 full MATLAB-to-Python mapping.
 
-Modules ported so far (Phases 1-2):
+Modules ported so far (Phases 1-4):
 
 - `rphtools.moduli` — isotropic moduli/velocity conversions, critical porosity
 - `rphtools.tensors` — 6x6 Voigt utilities, Thomsen parameters, Bond rotation
@@ -15,6 +15,8 @@ Modules ported so far (Phases 1-2):
 - `rphtools.fluid_properties` — Batzle-Wang relations, CO2 property tables
 - `rphtools.effective_medium` — Berryman self-consistent, DEM
 - `rphtools.cracks` — Hudson crack models, Eshelby-Cheng
+- `rphtools.granular` — Hertz-Mindlin, contact cement, stress-induced anisotropy
+- `rphtools.permeability` — empirical and theoretical permeability models
 """
 
 from .bounds import (
@@ -66,6 +68,20 @@ from .fluids import (
     squirt_ti,
     white_patchy,
 )
+from .granular import (
+    COORDINATION_TABLE,
+    ContactCement,
+    HertzMindlin,
+    HertzMindlinVelocity,
+    JohnsonMakse,
+    JohnsonResult,
+    contact_cement,
+    coordination_number,
+    hertz_mindlin,
+    hertz_mindlin_v,
+    johnson_makse,
+    johnson_stress_anisotropy,
+)
 from .layered import (
     BackusLogResult,
     BackusResult,
@@ -80,6 +96,22 @@ from .moduli import (
     moduli_to_velocity,
     velocity_to_lame,
     velocity_to_moduli,
+)
+from .permeability import (
+    PERM_MODELS,
+    BernabePerm,
+    BlochPerm,
+    OwolabiPerm,
+    bernabe_perm,
+    bloch_perm,
+    coates_dumanoir_perm,
+    coates_perm,
+    fredrich_perm,
+    kozeny_carman_perm,
+    modified_kozeny_carman_perm,
+    owolabi_perm,
+    panda_lake_kc_perm,
+    panda_lake_perm,
 )
 from .tensors import (
     CTIVelocities,
@@ -102,33 +134,45 @@ __version__ = "0.1.0"
 __all__ = [
     "BackusLogResult",
     "BackusResult",
+    "BernabePerm",
     "BerrymanSCCurves",
     "BiotDispersion",
+    "BlochPerm",
+    "COORDINATION_TABLE",
     "CTIVelocities",
+    "ContactCement",
     "CriticalPorosity",
     "DEMResult",
     "ElasticBounds",
     "EshelbyCheng",
     "FluidProperties",
-    "Hudson3Result",
-    "HudsonVelocities",
     "HSBoundCurves",
     "HSVelocityCurves",
+    "HertzMindlin",
+    "HertzMindlinVelocity",
+    "Hudson3Result",
+    "HudsonVelocities",
     "IsotropicCS",
-    "ThomsenParams",
+    "JohnsonMakse",
+    "JohnsonResult",
+    "OwolabiPerm",
+    "PERM_MODELS",
     "TICompliance5",
     "TIVelocities",
+    "ThomsenParams",
     "WhitePatchyResult",
     "backus_average",
     "backus_average_c",
     "backus_average_log",
     "batzle_wang",
+    "bernabe_perm",
     "berryman_sc",
     "berryman_sc_pressure",
     "berryman_scm",
     "biot_dispersion",
     "biot_hf",
     "biot_hf_geertsma_smit",
+    "bloch_perm",
     "bond_matrix",
     "bond_rotation",
     "bounds",
@@ -138,23 +182,37 @@ __all__ = [
     "brown_korringa_sat_to_dry",
     "brown_korringa_ti",
     "co2_properties",
+    "coates_dumanoir_perm",
+    "coates_perm",
+    "contact_cement",
+    "coordination_number",
     "critical_porosity",
     "cti_to_velocities",
     "dem",
     "dem_at_fraction",
     "eshelby_cheng",
+    "fredrich_perm",
     "gassmann_k",
     "gassmann_vel",
     "hashin_shtrikman",
     "hashin_shtrikman_velocity",
+    "hertz_mindlin",
+    "hertz_mindlin_v",
     "hudson",
     "hudson3",
     "hudson_cone",
     "hudson_fisher",
     "hudson_velocities",
     "isotropic_cs",
+    "johnson_makse",
+    "johnson_stress_anisotropy",
+    "kozeny_carman_perm",
     "lame_to_velocity",
+    "modified_kozeny_carman_perm",
     "moduli_to_velocity",
+    "owolabi_perm",
+    "panda_lake_kc_perm",
+    "panda_lake_perm",
     "squirt_ti",
     "thomsen_params",
     "ti_c_to_s",

@@ -48,7 +48,7 @@ consistent). Each docstring states its expectations.
 | 1 | `moduli`, `tensors`, `layered`, `bounds` | done |
 | 2 | `fluids`, `fluid_properties` | done |
 | 3 | `effective_medium`, `cracks` | done |
-| 4 | `granular`, `permeability` | planned |
+| 4 | `granular`, `permeability` | done |
 | 5 | `avo` | planned |
 | 6 | `seismic`, `signal` | planned |
 | 7 | `stats`, `io`, `plotting` | planned |
@@ -103,6 +103,22 @@ consistent). Each docstring states its expectations.
 | `hudsonF.m` | `rphtools.hudson_fisher` (two bug fixes, see module notes) |
 | `hudsoncone.m` | `rphtools.hudson_cone` |
 | `echeng.m` | `rphtools.eshelby_cheng` |
+| `hertzmind.m` | `rphtools.hertz_mindlin` |
+| `hertzmindv.m` | `rphtools.hertz_mindlin_v` |
+| `Cem.m` | `rphtools.contact_cement` |
+| `Johnson.m` | `rphtools.johnson_stress_anisotropy` (returns the tensor the MATLAB overwrote) |
+| `John_Makse.m` | `rphtools.johnson_makse` (reconstructed — the MATLAB could not run) |
+| `BernabeE.m` | `rphtools.bernabe_perm` |
+| `Bloch.m` | `rphtools.bloch_perm` |
+| `CoatDum.m` | `rphtools.coates_dumanoir_perm` |
+| `Coates.m` | `rphtools.coates_perm` |
+| `FredrichE.m` | `rphtools.fredrich_perm` |
+| `KozCarmE.m` | `rphtools.kozeny_carman_perm` |
+| `ModKozCarm.m` | `rphtools.modified_kozeny_carman_perm` |
+| `Owolabi.m` | `rphtools.owolabi_perm` |
+| `PandaLake.m` | `rphtools.panda_lake_perm` |
+| `PandaLakeKCE.m` | `rphtools.panda_lake_kc_perm` |
+| `PermMenu.m` | `rphtools.PERM_MODELS` (registry dict, no GUI) |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in

@@ -454,6 +454,23 @@ imports matplotlib lazily so the core package never requires it.
    their U3 terms, violating the exact TI identity `c66 = (c11-c12)/2` that
    any orientation-averaged medium must satisfy (verified against Hudson's
    `<M_ij M_kl>` structure; a test asserts the identity).
+10a. Phase 4 findings in the granular and permeability files:
+    (a) `Johnson.m` overwrites its 6x6 stiffness-tensor output with a *scalar*
+    contact constant — both are named `C`, so the documented "Cijkl
+    anisotropic stiffness tensor" output was that scalar;
+    `johnson_stress_anisotropy` returns the tensor.
+    (b) `John_Makse.m` cannot run as shipped: it uses the coordination
+    number `Z` two lines before assigning it, and stores an undefined `C12`
+    into its stiffness matrix. `johnson_makse` is a reconstruction that
+    starts the iteration at `Z = 6` and takes `C12 = C11 - 2*C66` from
+    `Johnson.m`.
+    (c) `BernabeE.m` is unusable non-interactively: it tests `nargin == 5`
+    for a four-argument function, calls its inner `Ber1` without the
+    porosity argument, and never assigns that call's result to its output.
+    (d) `Bloch.m` returns porosity in percent while plotting it as a
+    fraction; the port returns a fraction throughout.
+    (e) `Cem.m` hard-codes `3.14` for pi in the two cement Lambda
+    parameters; the port uses `pi` per the Handbook definition (<0.1%).
 10. `hudson_cone` follows the MATLAB matrix assembly (`c12` slot filled with
     `c11 - 2*c66`); the `c12cor` formula printed in `hudsoncone.m` is
     computed there but never used, and disagrees with `c11 - 2*c66` at
