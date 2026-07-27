@@ -50,7 +50,7 @@ consistent). Each docstring states its expectations.
 | 3 | `effective_medium`, `cracks` | done |
 | 4 | `granular`, `permeability` | done |
 | 5 | `avo` | done |
-| 6 | `seismic`, `signal` | planned |
+| 6 | `seismic`, `signal` | done |
 | 7 | `stats`, `io`, `plotting` | planned |
 
 ## MATLAB → Python mapping (ported so far)
@@ -124,6 +124,18 @@ consistent). Each docstring states its expectations.
 | `avo_abe.m` | `rphtools.avo_attributes` |
 | `eimp.m` | `rphtools.elastic_impedance` (`angle="reflection"`) |
 | `eimp2.m` | `rphtools.elastic_impedance` (`angle="incidence"`) |
+| `kennet.m` | `rphtools.kennett` |
+| `kennett_aux.m` | *(merged into `kennett` — its taper fix adopted)* |
+| `pgator.m` | `rphtools.propagator_seis` |
+| `kenfdisp.m` | `rphtools.kennett_frazer_dispersion` |
+| `kenfrtt.m` | `rphtools.kennett_frazer_traveltimes` |
+| `ezseis.m` | `rphtools.quick_seismic_section` |
+| *(missing `sourcewvlt`)* | `rphtools.ricker` (replacement default wavelet) |
+| `fftplot.m` | `rphtools.spectrum` |
+| `iatrib.m` | `rphtools.instantaneous_attributes` |
+| `blockav.m` | `rphtools.block_average` |
+| `ft1axis.m` | `rphtools.fft_axis` (`axis=0`) |
+| `ft2axis.m` | `rphtools.fft_axis` (`axis=1`) |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in
