@@ -56,8 +56,40 @@ g.hash = [ku(:), kl(:), gu(:), gl(:), por(:)];
 [vpu, vpl, vsu, vsl, por] = hashv(6.008, 4.075, 2.65, 1.5, 0, 1.0);
 g.hashv = [vpu(:), vpl(:), vsu(:), vsl(:), por(:)];
 
+% --- fluids (Phase 2) --------------------------------------------------
+g.gassmnk = gassmnk(12, 0.0, 2.5, 37, 0.25);
+[vp2, vs2, ro2, k2] = gassmnv(3.5, 2.2, 2.3, 1.0, 2.5, 0.2, 0.05, 37, 0.25);
+g.gassmnv = [vp2, vs2, ro2, k2];
+[S, C] = CSiso(12, 14);
+g.bkd2s = BKd2s(S, 37, 44, 2.5, 0.25);
+g.bks2d = BKs2d(g.bkd2s, 37, 44, 2.5, 0.25);
+[Smin, Cmin] = CSiso(37, 44);
+sso = [Smin(1,1) Smin(1,2) Smin(1,3) Smin(3,3) Smin(4,4)];
+ssd = [S(1,1) S(1,2) S(1,3) S(3,3) S(4,4)];
+g.bkti = bkti(0.25, 1/2.5, sso, ssd);
+g.mmti = mmti([0.036 -0.007 -0.006 0.040 0.13], [0.030 -0.008 -0.007 0.033 0.11]);
+[vp1, vp2b, vs] = biothf(3200, 2000, 37e9, 44e9, 2650, 1000, 2.25e9, 0.25, 2);
+g.biothf = [vp1, vp2b, vs];
+[vp1, vs] = biothfb(3200, 2000, 37e9, 44e9, 2650, 1000, 2.25e9, 0.25, 2);
+g.biothfb = [vp1, vs];
+[vp1, freq, vp2b, vs, q1, q2, qs] = biot(3200, 2000, 37e9, 44e9, 2650, 1000, ...
+    2.25e9, 1e-3, 0.25, 1e-12, 1e-5, 2, 0, 6, 'none');
+g.biot = [vp1(:), freq(:), vp2b(:), vs(:), q1(:), q2(:), qs(:)];
+fl = [0.05e9 2.25e9; 200 1000; 2e-5 1e-3];
+[vp, k, atn, fw, kinf, klf] = patchw(12e9, 14e9, 37e9, 44e9, 2650, 0.25, ...
+    1e-12, fl, 0.3, 0.1, logspace(-2, 4, 20));
+g.patchw = [vp(:), real(k(:)), imag(k(:)), atn(:)];
+g.patchw_lims = [kinf, klf];
+
+% --- fluid properties (Phase 2) ----------------------------------------
+[Kreuss,rhoeff,Kvoigt,vpb,rhob,Kb,vpo,rhoo,Ko,vpg,rhog,Kg,gor] = ...
+    flprop(0, 35000, 30, 0.6, 100, 0, 0, 30, 80, 0.3, 0.2);
+g.flprop = [Kreuss,rhoeff,Kvoigt,vpb,rhob,Kb,vpo,rhoo,Ko,vpg,rhog,Kg,gor];
+[k, rho, vp] = co2prop(60, 15);
+g.co2prop = [k, rho, vp];
+
 % --- write -------------------------------------------------------------
 fid = fopen(fullfile(outdir, 'phase1.json'), 'w');
 fprintf(fid, '%s', jsonencode(g));
 fclose(fid);
-disp('Wrote golden fixtures for Phase 1.');
+disp('Wrote golden fixtures for Phases 1-2.');

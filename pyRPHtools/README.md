@@ -46,7 +46,7 @@ consistent). Each docstring states its expectations.
 |---|---|---|
 | 0 | packaging, CI, test harness, CO2 data conversion | done |
 | 1 | `moduli`, `tensors`, `layered`, `bounds` | done |
-| 2 | `fluids`, `fluid_properties` | planned |
+| 2 | `fluids`, `fluid_properties` | done |
 | 3 | `effective_medium`, `cracks` | planned |
 | 4 | `granular`, `permeability` | planned |
 | 5 | `avo` | planned |
@@ -74,6 +74,22 @@ consistent). Each docstring states its expectations.
 | `bound.m` | `rphtools.bounds` |
 | `hash.m` | `rphtools.hashin_shtrikman` |
 | `hashv.m` | `rphtools.hashin_shtrikman_velocity` |
+| `gassmnk.m` | `rphtools.gassmann_k` |
+| `gassmnv.m` | `rphtools.gassmann_vel` |
+| `patchw.m` | `rphtools.white_patchy` |
+| `biot.m` | `rphtools.biot_dispersion` |
+| `biothf.m` | `rphtools.biot_hf` |
+| `biothfb.m` | `rphtools.biot_hf_geertsma_smit` |
+| `biothfgs.m` | *(not ported — approximates `biot_hf`; test oracle only)* |
+| `BKs2d.m` | `rphtools.brown_korringa_sat_to_dry` |
+| `BKd2s.m` | `rphtools.brown_korringa_dry_to_sat` |
+| `BKs2s.m` | `rphtools.brown_korringa_s` |
+| `BKc2c.m` | `rphtools.brown_korringa_c` |
+| `bkti.m` | `rphtools.brown_korringa_ti` |
+| `mmti.m` | `rphtools.squirt_ti` |
+| `flprop.m` | `rphtools.batzle_wang` |
+| `flpropui.m` | *(not ported — GUI wrapper around flprop)* |
+| `co2prop.m` | `rphtools.co2_properties` |
 
 Deliberate behavior changes from the MATLAB (bug fixes, dropped GUI/plotting,
 unified argument orders) are documented per module and in
